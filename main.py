@@ -35,7 +35,8 @@ def cleanConnection(rel):
         "DerivedFrom": "derived from",
         "adverbPertainsTo": "adverb pertains to",
         "SimilarTo": "similar to",
-        "AtLocation": "at location"
+        "AtLocation": "at location",
+        "SimilarTo": "similar to"
     }
 
     return switcher.get(rel, rel)
