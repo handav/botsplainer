@@ -24,19 +24,22 @@ tokenizedText = word_tokenize(textToAnalyze)
 tokens_pos = pos_tag(tokenizedText)
 translation = ''
 
+textStrings = []
+
 
 
 def cleanConnection(rel):
     switcher = {
         "HasA": "has a",
-        "RelatedTo": "related to",
+        "RelatedTo": "is related to",
         "IsA": "is a",
-        "HasProperty": "has property",
-        "DerivedFrom": "derived from",
-        "adverbPertainsTo": "adverb pertains to",
+        "HasProperty": "is",
+        "DerivedFrom": "is derived from",
+        "adverbPertainsTo": "pertains to",
         "SimilarTo": "similar to",
         "AtLocation": "at location",
-        "SimilarTo": "similar to"
+        "Antonym": "is an antonym of",
+        "Synonym": "is a synonym of"
     }
 
     return switcher.get(rel, rel)
@@ -53,11 +56,13 @@ def makeRequest(word):
         information = resp.json()
         edges=information['edges']
         numFound = information['numFound']
+
+        edgeString = ""
+        if (numFound > 0):
+            edgeString = word.upper()+": "
+
         for edge in edges:
             relation = edge['start'], edge['rel'], edge['end']
-            print '\n'
-            print word
-            print relation
             relevantWords = ''
             for rel in relation:
                 relSplit = rel.split('/')
@@ -72,20 +77,12 @@ def makeRequest(word):
                 elif relSplit[1] == 'r':
                     if len(relSplit) > 3:
                         relevantWords = relevantWords + ' ' +cleanConnection(relSplit[3])
-                        print relSplit[3]
                     else:
                         relevantWords = relevantWords + ' ' +cleanConnection(relSplit[2])
-                        print relSplit[2]
 
-                #relevantWords = relevantWords.split('_')
-            textString = relevantWords
-
-            global translation 
-            if len(translation) > 0:
-                translation = translation + ', ' + textString
-            else:
-                translation = textString
-            print relevantWords
+            relevantWords = ' '.join(relevantWords.split('_')) + ","
+            edgeString = edgeString + relevantWords
+        textStrings.append(edgeString)
 
 
 for i, word in enumerate(tokens_pos):
@@ -100,4 +97,7 @@ for i, word in enumerate(tokens_pos):
     if (word not in commonwords and word not in punctuation):
         makeRequest(word)
 
-print translation
+textStrings = ' '.join(textStrings)
+print textStrings
+
+
